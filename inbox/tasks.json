@@ -1,0 +1,61 @@
+{
+  "source": "多表查询题库 (129-135)",
+  "tasks": [
+    {
+      "title": "解 SQL129：统计月均完成试卷≥3的用户爱作答的类别（join + 子查询 + having 求月均）",
+      "type": "deep",
+      "load": "高",
+      "estMin": 30,
+      "priority": "medium",
+      "source": "129.md"
+    },
+    {
+      "title": "解 SQL130：算 SQL 试卷发布当天 5 级以上用户的作答人数与平均分（元组 IN 子查询）",
+      "type": "deep",
+      "load": "高",
+      "estMin": 30,
+      "priority": "medium",
+      "source": "130.md"
+    },
+    {
+      "title": "解 SQL131：统计得分>80 的 SQL 作答用户等级分布（三表 join + 去重计数）",
+      "type": "deep",
+      "load": "中",
+      "estMin": 20,
+      "priority": "medium",
+      "source": "131.md"
+    },
+    {
+      "title": "解 SQL132：统计每道题/每份试卷被作答的人数和次数（UNION 合并两张聚合表）",
+      "type": "deep",
+      "load": "中",
+      "estMin": 20,
+      "priority": "medium",
+      "source": "132.md"
+    },
+    {
+      "title": "解 SQL133：一次性筛出满足两个运营活动的人（UNION ALL + 用时一半的时长比较）",
+      "type": "deep",
+      "load": "高",
+      "estMin": 30,
+      "priority": "medium",
+      "source": "133.md"
+    },
+    {
+      "title": "解 SQL134：统计高难 SQL 均分>80 的 7 级用户试卷完成数与刷题数（嵌套子查询 + left join）",
+      "type": "deep",
+      "load": "高",
+      "estMin": 35,
+      "priority": "medium",
+      "source": "134.md"
+    },
+    {
+      "title": "解 SQL135：统计每个 6/7 级用户的活跃月份数与活跃天数（UNION ALL + case when 条件聚合）",
+      "type": "deep",
+      "load": "高",
+      "estMin": 35,
+      "priority": "medium",
+      "source": "135.md"
+    }
+  ]
+}
