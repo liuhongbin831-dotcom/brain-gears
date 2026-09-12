@@ -1,0 +1,8 @@
+# OS 垃圾文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 依赖 / 日志
+node_modules/
+*.log

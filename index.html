@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>精力助手 · 大脑效率革命</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- 顶部状态栏（极简：状态 + 唯一主题按钮） -->
+  <header class="topbar">
+    <div class="brand">🧠 精力助手</div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="gear-badge" id="gearBadge" data-gear="0">挡位 · 待检测</div>
+    <div class="topbar-actions">
+      <button id="btnTheme" class="btn ghost" title="切换深浅色">🌙</button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- 左主区 -->
+    <section class="main-col">
+
+      <!-- 此刻 · 当下安排（视觉中心，含两个核心动作） -->
+      <div class="card now-card" id="nowCard">
+        <div class="now-label">此刻 · 当下安排</div>
+        <div class="now-body" id="nowBody">
+          <div class="now-empty">还没有安排。先汇报起床/睡眠，或在「任务」里导入 tasks.json。</div>
+        </div>
+        <div class="now-actions">
+          <button class="btn primary" id="btnDetect">🛠 检测我的档位</button>
+          <button class="btn warn" id="btnStuck">🆘 我卡住了</button>
+        </div>
+      </div>
+
+      <!-- 今日精力地形图 -->
+      <div class="card">
+        <div class="card-head">
+          <h2>今日精力地形图</h2>
+          <span class="hint" id="dayMeta">—</span>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><i class="sw sw-task"></i>任务</span>
+          <span class="legend-item"><i class="sw sw-charge"></i>充电</span>
+          <span class="legend-item"><i class="sw sw-rest"></i>休息</span>
+          <span class="legend-item"><i class="sw sw-gap"></i>自由</span>
+          <span class="legend-item"><i class="sw sw-now"></i>当前</span>
+        </div>
+        <div id="timeline" class="timeline"></div>
+      </div>
+
+    </section>
+
+    <!-- 右侧栏 -->
+    <aside class="side-col">
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="tasks">任务</button>
+        <button class="tab" data-tab="queue">队列</button>
+        <button class="tab" data-tab="review">复盘</button>
+        <button class="tab" data-tab="settings">设置</button>
+      </nav>
+
+      <!-- 任务面板 -->
+      <div class="panel active" id="panel-tasks">
+        <div class="import-row">
+          <button class="btn primary" id="btnReloadInbox">重新读取 inbox</button>
+          <label class="btn ghost file-btn">
+            手动导入 JSON
+            <input type="file" id="jsonInput" accept=".json" hidden>
+          </label>
+        </div>
+        <div class="add-row">
+          <input type="text" id="taskInput" placeholder="手动添加一个任务…" />
+          <select id="taskType" title="任务类型">
+            <option value="deep">深度</option>
+            <option value="creative">创意</option>
+            <option value="routine">常规</option>
+            <option value="sprint">冲刺</option>
+          </select>
+          <button class="btn primary" id="btnAddTask">添加</button>
+        </div>
+        <div class="add-row add-meta">
+          <select id="taskPriority" title="优先级">
+            <option value="medium">中优先</option>
+            <option value="high">高优先</option>
+            <option value="low">低优先</option>
+          </select>
+          <select id="taskLoad" title="用脑量">
+            <option value="">用脑 自动</option>
+            <option value="低">用脑 低</option>
+            <option value="中">用脑 中</option>
+            <option value="高">用脑 高</option>
+          </select>
+          <input type="number" id="taskEstMin" min="5" max="480" step="5" value="30" title="预计分钟" />
+        </div>
+        <div class="task-list" id="taskList"></div>
+      </div>
+
+      <!-- 队列面板 -->
+      <div class="panel" id="panel-queue">
+        <div class="queue-list" id="queueList"></div>
+      </div>
+
+      <!-- 复盘面板 -->
+      <div class="panel" id="panel-review">
+        <p class="hint" id="reviewDate">—</p>
+        <div class="stat-grid" id="reviewStats"></div>
+        <div class="bar-chart" id="reviewGears"></div>
+        <div id="reviewTrend"></div>
+      </div>
+
+      <!-- 设置面板 -->
+      <div class="panel" id="panel-settings">
+        <div class="field">
+          <label>起床时间</label>
+          <input type="time" id="wakeTime">
+        </div>
+        <div class="field">
+          <label>昨晚睡眠（小时）</label>
+          <input type="number" id="sleepHours" min="0" max="16" step="0.5">
+        </div>
+        <div class="field">
+          <label>工作学习占比 <span class="hint" id="workRatioLabel">75%</span></label>
+          <input type="range" id="workRatio" min="50" max="90" step="5">
+        </div>
+        <button class="btn primary block" id="btnApplySettings">应用设置 & 重新排程</button>
+        <hr>
+        <div class="field row">
+          <button class="btn ghost" id="btnExport">导出数据(JSON)</button>
+          <button class="btn ghost" id="btnReset">清空当日</button>
+        </div>
+        <p class="hint">说明：精力节律为简化启发式模型，仅供自我管理参考，非医学建议。</p>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- 档位检测 / 卡住 弹窗 -->
+  <div class="modal-backdrop" id="detectModal" hidden>
+    <div class="modal">
+      <h2 id="detectModalTitle">检测我的档位</h2>
+      <div id="detectModalBody"></div>
+      <button class="btn ghost block" id="btnDetectClose">关闭</button>
+    </div>
+  </div>
+
+  <!-- 早晨流程弹窗 -->
+  <div class="modal-backdrop" id="morningModal" hidden>
+    <div class="modal">
+      <h2>🌅 早上好</h2>
+      <p class="hint">汇报两点，我为你排好今天。</p>
+      <div class="field">
+        <label>今天几点起床？</label>
+        <input type="time" id="mWakeTime">
+      </div>
+      <div class="field">
+        <label>昨晚睡了多久？（小时）</label>
+        <input type="number" id="mSleepHours" min="0" max="16" step="0.5" value="7">
+      </div>
+      <button class="btn primary block" id="btnMorningOk">生成今日安排</button>
+      <button class="btn ghost block" id="btnMorningSkip">跳过，用默认设置</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

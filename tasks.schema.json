@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "精力助手 · 任务清单（供 AI 拆解输出、工具导入）",
+  "description": "本终端 Claude 拆解 md 后，请按此格式输出 JSON，存为 tasks.json，再在工具「任务」面板点「导入 JSON」。",
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "description": "可选：原始 md 文件名或来源说明，仅作记录"
+    },
+    "tasks": {
+      "type": "array",
+      "description": "有序任务列表，按建议执行顺序排列",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "description": "任务标题（一句话，可执行）" },
+          "type": {
+            "type": "string",
+            "enum": ["deep", "creative", "routine", "sprint"],
+            "description": "deep=深度工作(挡位2) / creative=发散创意·头脑风暴·写作(挡位2,排清晨深夜) / routine=常规琐碎(挡位1-2) / sprint=紧急冲刺(挡位3)"
+          },
+          "load": {
+            "type": "string",
+            "enum": ["低", "中", "高"],
+            "description": "用脑量：高→精力高峰，中→中等时段，低→午后低谷"
+          },
+          "estMin": { "type": "number", "minimum": 5, "description": "预计耗时（分钟）" },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "优先级"
+          }
+        },
+        "required": ["title"]
+      }
+    }
+  },
+  "required": ["tasks"]
+}
