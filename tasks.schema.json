@@ -17,8 +17,8 @@
           "title": { "type": "string", "description": "任务标题（一句话，可执行）" },
           "type": {
             "type": "string",
-            "enum": ["deep", "creative", "routine", "sprint"],
-            "description": "deep=深度工作(挡位2) / creative=发散创意·头脑风暴·写作(挡位2,排清晨深夜) / routine=常规琐碎(挡位1-2) / sprint=紧急冲刺(挡位3)"
+            "enum": ["deep", "creative", "routine", "sprint", "rest"],
+            "description": "deep=深度工作(挡位2) / creative=发散创意·头脑风暴·写作(挡位2,排清晨深夜) / routine=常规琐碎(挡位1-2) / sprint=紧急冲刺(挡位3) / rest=恢复·充电(冥想/散步/午睡/拉伸,挡位1,排入休息时段)"
           },
           "load": {
             "type": "string",

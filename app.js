@@ -99,13 +99,13 @@ const STUCK_TITLES = ['充电 · 卡住恢复', '换轨 · 创造性重启', '�
 /* 类型 → 挡位 / 默认用脑量（透明映射，非"从文字猜"） */
 // creative（发散/创意）= 放松但专注态（挡2）、用脑量中；排程时落到低唤醒的清晨/深夜（见 assignTasks 的 'offpeak'）
 const typeGear = (type) => (type === 'sprint' ? 3 : (type === 'deep' || type === 'creative') ? 2 : 1);
-const typeLoad = { deep: '高', creative: '中', routine: '低', sprint: '高' };
+const typeLoad = { deep: '高', creative: '中', routine: '低', sprint: '高', rest: '低' };
 const loadRank = { '高': 3, '中': 2, '低': 1 };
 const priorityRank = (p) => (p === 'high' ? 3 : p === 'medium' ? 2 : 1);
 
 /* ---------- 任务构造 ---------- */
 function createTask(title, type, source, opts = {}) {
-  type = ['deep', 'creative', 'routine', 'sprint'].includes(type) ? type : 'routine';
+  type = ['deep', 'creative', 'routine', 'sprint', 'rest'].includes(type) ? type : 'routine';
   return {
     id: uid(), title: oneLine(title), type,
     load: opts.load || typeLoad[type],
@@ -129,7 +129,7 @@ function importTasksJson(obj) {
   let n = 0;
   arr.forEach((t) => {
     if (!t || !t.title) return;
-    const type = ['deep', 'creative', 'routine', 'sprint'].includes(t.type) ? t.type : 'routine';
+    const type = ['deep', 'creative', 'routine', 'sprint', 'rest'].includes(t.type) ? t.type : 'routine';
     tasks.push({
       id: uid(), title: oneLine(t.title), type,
       load: ['低', '中', '高'].includes(t.load) ? t.load : typeLoad[type],
@@ -163,13 +163,14 @@ function sleepFactor(sleepHours) {
 /* ---------- 调度引擎 ---------- */
 // 按排程优先级给任务排序：冲刺(按优先级) → 深度(高用脑量优先) → 常规(低用脑量优先)
 function orderPendingTasks(list) {
-  const bucket = { sprint: [], deep: [], creative: [], routine: [] };
+  const bucket = { sprint: [], deep: [], creative: [], routine: [], rest: [] };
   list.forEach((t) => bucket[t.type].push(t));
   bucket.sprint.sort((a, b) => priorityRank(b.priority) - priorityRank(a.priority));
   bucket.deep.sort((a, b) => (loadRank[b.load] || 2) - (loadRank[a.load] || 2) || priorityRank(b.priority) - priorityRank(a.priority));
   bucket.creative.sort((a, b) => priorityRank(b.priority) - priorityRank(a.priority));
   bucket.routine.sort((a, b) => (loadRank[a.load] || 2) - (loadRank[b.load] || 2) || priorityRank(b.priority) - priorityRank(a.priority));
-  return [bucket.sprint, bucket.deep, bucket.creative, bucket.routine];
+  bucket.rest.sort((a, b) => priorityRank(b.priority) - priorityRank(a.priority));
+  return [bucket.sprint, bucket.deep, bucket.creative, bucket.routine, bucket.rest];
 }
 
 function buildDaySchedule(pendingTasks) {
@@ -221,13 +222,14 @@ function buildDaySchedule(pendingTasks) {
   });
   const assign = new Array(slots.length).fill(null);
 
-  const [sprint, deep, creative, routine] = orderPendingTasks(pendingTasks);
+  const [sprint, deep, creative, routine, rest] = orderPendingTasks(pendingTasks);
 
   const leftover = [
     ...assignTasks(sprint, 'earliest', slots, assign, charge, workSlots),
     ...assignTasks(deep, 'highest', slots, assign, charge, workSlots),
     ...assignTasks(creative, 'offpeak', slots, assign, charge, workSlots),
     ...assignTasks(routine, 'lowest', slots, assign, charge, workSlots),
+    ...assignTasks(rest, 'lowest', slots, assign, charge, workSlots),
   ];
 
   const sched = [];
@@ -240,7 +242,10 @@ function buildDaySchedule(pendingTasks) {
       sched.push({ start: sl.start, end: sl.end, kind: lunch ? 'charge' : 'rest', title: lunch ? '午间充电' : '短休息', gear: 1 });
     } else if (tid) {
       const t = tasks.find((x) => x.id === tid);
-      if (t) sched.push({ start: sl.start, end: sl.end, kind: 'task', taskId: tid, title: t.title, gear: t.gear, done: t.done });
+      if (t) {
+        if (t.type === 'rest') sched.push({ start: sl.start, end: sl.end, kind: 'rest', taskId: tid, title: t.title, gear: 1, done: t.done });
+        else sched.push({ start: sl.start, end: sl.end, kind: 'task', taskId: tid, title: t.title, gear: t.gear, done: t.done });
+      }
     } else {
       sched.push({ start: sl.start, end: sl.end, kind: 'gap', title: '自由时间', gear: 0 });
     }
@@ -412,7 +417,7 @@ function renderTaskList() {
     return;
   }
   const todayIds = new Set(daily.schedule.filter((e) => e.taskId).map((e) => e.taskId));
-  const order = { sprint: 0, deep: 1, creative: 2, routine: 3 };
+  const order = { sprint: 0, deep: 1, creative: 2, routine: 3, rest: 4 };
   const sorted = [...tasks].sort((a, b) => (a.done - b.done) || order[a.type] - order[b.type] || priorityRank(b.priority) - priorityRank(a.priority));
   el.innerHTML = sorted.map((t) => {
     const dayTag = t.done ? '' : `<span class="tag tag-day">${todayIds.has(t.id) ? '今天' : '待排'}</span>`;
@@ -554,7 +559,7 @@ function renderReview() {
   `;
 }
 
-function typeLabel(t) { return t === 'deep' ? '深度' : t === 'creative' ? '创意' : t === 'sprint' ? '冲刺' : '常规'; }
+function typeLabel(t) { return t === 'deep' ? '深度' : t === 'creative' ? '创意' : t === 'sprint' ? '冲刺' : t === 'rest' ? '休息' : '常规'; }
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
