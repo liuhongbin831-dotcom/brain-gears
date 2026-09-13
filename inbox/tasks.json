@@ -1,5 +1,5 @@
 {
-  "source": "多表查询题库 (129-135)",
+  "source": "多表查询题库 + Charlotte's Web",
   "tasks": [
     {
       "title": "解 SQL129：统计月均完成试卷≥3的用户爱作答的类别（join + 子查询 + having 求月均）",
@@ -56,6 +56,30 @@
       "estMin": 35,
       "priority": "medium",
       "source": "135.md"
+    },
+    {
+      "title": "读 Charlotte's Web 原文 第 1~7 章（Wilbur 出场、遇见 Charlotte）",
+      "type": "deep",
+      "load": "中",
+      "estMin": 60,
+      "priority": "medium",
+      "source": "自然语言"
+    },
+    {
+      "title": "读 Charlotte's Web 原文 第 8~15 章",
+      "type": "deep",
+      "load": "中",
+      "estMin": 60,
+      "priority": "medium",
+      "source": "自然语言"
+    },
+    {
+      "title": "读 Charlotte's Web 原文 第 16~22 章（结尾）",
+      "type": "deep",
+      "load": "中",
+      "estMin": 60,
+      "priority": "medium",
+      "source": "自然语言"
     }
   ]
 }
